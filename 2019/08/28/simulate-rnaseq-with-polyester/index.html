@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+         
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Simulate RNAseq with Polyester</title>
+        
+        <link rel="icon" href="/documentation/favicon.ico">
+        
+        <style>
+
+    html body {
+        font-family: '', sans-serif;
+        background-color: white;
+    }
+
+    :root {
+        --accent: #2196F3;
+        --border-width:  0 ;
+    }
+
+</style>
+
+
+<link rel="stylesheet" href="/documentation/css/main.css">
+
+
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=">
+
+
+
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+ 
+
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<script>$(document).on('click', function() { $('.collapse').collapse('hide'); })</script>
+ <meta name="generator" content="Hugo 0.57.1" />
+        
+
+        
+
+        
+        
+        <script type="text/javascript" async
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        </script>
+        
+    </head>
+
+    <body>
+         
+        <nav class="navbar navbar-default navbar-fixed-top">
+
+            <div class="container">
+
+                <div class="navbar-header">
+
+                    <a class="navbar-brand visible-xs" href="#">Simulate RNAseq with Polyester</a>
+
+                    <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+
+                </div>
+
+                <div class="collapse navbar-collapse">
+
+                    
+                        <ul class="nav navbar-nav">
+                            
+                                <li><a href="/documentation/">Home</a></li>
+                            
+                                <li><a href="/documentation/about/">About</a></li>
+                            
+                                <li><a href="/documentation/post/">Posts</a></li>
+                            
+                        </ul>
+                    
+
+                    
+                        <ul class="nav navbar-nav navbar-right">
+                            
+                                <li class="navbar-icon"><a href="https://github.com/nibsbioinformatics/core"><i class="fa fa-github"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://twitter.com/nibsc_mhra"><i class="fa fa-twitter"></i></a></li>
+                            
+                        </ul>
+                    
+
+                </div>
+
+            </div>
+
+        </nav>
+
+
+<main>
+
+    <div class="item">
+
+    
+    
+    
+
+    
+    
+
+    <h4><a href="/documentation/2019/08/28/simulate-rnaseq-with-polyester/">Simulate RNAseq with Polyester</a></h4>
+    <h5>August 28, 2019</h5>
+    
+
+</div>
+
+
+    <br> <div class="text-justify">
+
+
+<p>Since the simulation is quite slow in generating the data, we have used a modified package available on github, which benefits of the multi-threading functions available in the package <strong>doMC</strong>.
+In order to install this package one should overwrite the installation with the github code:</p>
+<pre class="r"><code>devtools::install_github(&quot;kcha/polyester&quot;)</code></pre>
+<p>Then all libraries can be loaded</p>
+<pre class="r"><code>library(tidyverse)
+library(reshape2)
+library(doMC)
+library(polyester)
+library(Biostrings)</code></pre>
+<p>First we read in the cDNA/transcripts file using the <strong>Biostrings</strong> package</p>
+<pre class="r"><code>fastaFile = &quot;/usr/share/sequencing/references/rnaseq/Homo_sapiens/ENSEMBL/Homo_sapiens.GRCh38.cdna.all.fa&quot;
+fasta = readDNAStringSet(fastaFile)</code></pre>
+<p>Notice I have first stored the file location into an object, it will be convenient for the simulation step.</p>
+<p>Then, following the indications of the <a href="http://www.bioconductor.org/packages/release/bioc/vignettes/polyester/inst/doc/polyester.html">polyester vignette</a> we can set the coverage of each transcript to 30, taking care of calculating all transcripts with approximately equal FPKM: 30X coverage means <em>reads per transcript = transcriptlength/readlength * 30</em></p>
+<pre class="r"><code>readspertx = round(30 * width(fasta)/100)</code></pre>
+<p>the transcript length is extracted again using the convenient functions of the Biostrings package.</p>
+<p>We then want to make our differential expression mildly realistic.
+We can design 2 groups of cases and controls, each with 20 replicas. In the first group I select 200 random genes involved with immunoglobulins.</p>
+<p>The fasta headers contain some functional information, we can use to match keywords:</p>
+<pre class="r"><code>genes &lt;- names(fasta)</code></pre>
+<p>We can find all matches of gene descriptions with the keyword <em>immunoglobulin</em> (using the function <strong>grepl</strong> which returns a true/false); then, in a nested step, we get the index position in the vector of genes of all matches (function <strong>which</strong>), and finally we sample randomly 200 of the matches (function <strong>sample</strong>).</p>
+<pre class="r"><code>immunoglobulin &lt;- sample(which(grepl(&quot;immunoglobulin&quot;, genes)), 200)</code></pre>
+<p>The results gives us a random list of 200 positions from the vector <em>genes</em> to select for differential expression.</p>
+<p>We can do the same, to be used on the second group, with genes matching the keyword <em>potassium</em> and selecting 150 random genes out of the match.</p>
+<pre class="r"><code>potassium &lt;- sample(which(grepl(&quot;potassium&quot;, genes)), 150)</code></pre>
+<p>The simulation needs a matrix indicating all genes in rows and in columns the expected fold change in each of the groups we are about to simulate.
+In order to introduced the above selected fold changes, it is easier to create a baseline fold matrix with <em>fold-change=1</em> on all positions, and then swap the cells corresponding to the above.</p>
+<pre class="r"><code>fold_changes &lt;- matrix(rep(1, 2 * length(genes)), nrow = length(genes))</code></pre>
+<p>We can now substitute in the fold matrix the selected genes in cases and controls with random fold changes between 2 and 4. To create the values between 2 and 4 we use again the function <strong>sample</strong>, this time with replacement.</p>
+<pre class="r"><code>fold_changes[immunoglobulin, 1] &lt;- sample(2:4, length(immunoglobulin), replace = T)
+fold_changes[potassium, 2] &lt;- sample(2:4, length(potassium), replace = T)</code></pre>
+<p>Now we are ready to simulate our reads, using 16 cores which allows us to write 16 samples at the same time, thus speeding up the process a bit.</p>
+<pre class="r"><code>simulate_experiment(fasta = fastaFile, outdir = &quot;reads&quot;, num_reps = c(20, 20), reads_per_transcript = readspertx, 
+    fold_changes = fold_changes, size = 0.2, error_model = &quot;illumina5&quot;, gzip = TRUE, 
+    cores = 16)</code></pre>
+</div>
+
+    
+    
+
+    
+
+    
+
+</main>
+
+        <footer>
+
+            <p class="copyright text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io">Hugo</a> and <a href="https://github.com/calintat/minimal">Minimal</a></p>
+
+        </footer>
+       
+    </body>
+
+</html>
+

@@ -6,10 +6,22 @@
     <description>Recent content in Posts on NIBSC Bioinformatics Documentation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 16 Aug 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 28 Aug 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/documentation/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Simulate RNAseq with Polyester</title>
+      <link>/documentation/2019/08/28/simulate-rnaseq-with-polyester/</link>
+      <pubDate>Wed, 28 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/documentation/2019/08/28/simulate-rnaseq-with-polyester/</guid>
+      <description>Since the simulation is quite slow in generating the data, we have used a modified package available on github, which benefits of the multi-threading functions available in the package doMC.In order to install this package one should overwrite the installation with the github code:
+devtools::install_github(&amp;quot;kcha/polyester&amp;quot;)Then all libraries can be loaded
+library(tidyverse)library(reshape2)library(doMC)library(polyester)library(Biostrings)First we read in the cDNA/transcripts file using the Biostrings package
+fastaFile = &amp;quot;/usr/share/sequencing/references/rnaseq/Homo_sapiens/ENSEMBL/Homo_sapiens.</description>
+    </item>
     
     <item>
       <title>Clone Our Repository</title>
