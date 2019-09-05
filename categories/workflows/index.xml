@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Workflows on NIBSC Bioinformatics Documentation</title>
+    <link>/documentation/categories/workflows/</link>
+    <description>Recent content in Workflows on NIBSC Bioinformatics Documentation</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 05 Sep 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/documentation/categories/workflows/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Time Course Analysis - Example workflow</title>
+      <link>/documentation/2019/09/05/time-course-analysis-example-workflow/</link>
+      <pubDate>Thu, 05 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/documentation/2019/09/05/time-course-analysis-example-workflow/</guid>
+      <description># setwd(&amp;quot;~/PROJECTS_WORK/projectnumber&amp;quot;)library(knitr)opts_chunk$set(message=FALSE, error=FALSE, warning=FALSE, tidy=TRUE, tidy.opts=list(blank=FALSE), cache=TRUE, cache.lazy = FALSE, echo = TRUE, results = &amp;#39;asis&amp;#39;, fig.pos=&amp;#39;H&amp;#39;, fig.wide=TRUE, eval=FALSE)library(tidyverse)library(reshape2)library(pander)library(grid)library(VennDiagram)library(DESeq2)library(ImpulseDE2)library(splines)library(pheatmap)library(TCseq)library(biomaRt)library(org.Hs.eg.db)library(TxDb.Hsapiens.UCSC.hg19.knownGene)library(pander)library(eulerr)library(qvalue)library(clusterProfiler)library(org.Hs.eg.db)library(DOSE)# ddsHTSeq &amp;lt;- readRDS(&amp;quot;PXXX_ddsHTSeq_timeCourse_spline.RDS&amp;quot;)# sampleTable &amp;lt;- readRDS(&amp;quot;PXXX_sampleTable_metadata.RDS&amp;quot;)# objectImpulseDE2 &amp;lt;- readRDS(&amp;quot;PXXX_objectImpulseDE2.RDS&amp;quot;)Preparing DataLoading HTSeq CountsThis is run on the cluster, then an RDS file is analysed locally.</description>
+    </item>
+    
+  </channel>
+</rss>
